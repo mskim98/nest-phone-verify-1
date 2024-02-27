@@ -61,7 +61,7 @@ else
     echo "잘못된 입력입니다."
 fi
 
-rm -rf /template
+rm -rf template
 rm -rf .env.example
 
 echo "Nest 미션 레포 세팅이 아래와 같이 완료되었습니다."
