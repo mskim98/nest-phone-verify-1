@@ -39,7 +39,7 @@ export class PhoneCheckService {
     return randomCode;
   }
 
-  async get(updatePhoneCheckDto: UpdatePhoneCheckDto): Promise<boolean> {
+  async check(updatePhoneCheckDto: UpdatePhoneCheckDto): Promise<boolean> {
     const { phoneNum, codeNum } = updatePhoneCheckDto;
 
     // 데이터베이스에서 phoneNumber가 일치하는 레코드 검색

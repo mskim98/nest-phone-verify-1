@@ -1,9 +1,8 @@
-import { Controller, Post, Body, Get } from '@nestjs/common';
+import { Controller, Post, Body, Patch } from '@nestjs/common';
 import { PhoneCheckService } from './phone-check.service';
 import { CreatePhoneCheckDto } from './dto/create-phone-check.dto';
 import { UpdatePhoneCheckDto } from './dto/update-phone-check.dto';
 import { validate } from 'class-validator';
-import { get } from 'http';
 
 @Controller('phone-check')
 export class PhoneCheckController {
@@ -19,11 +18,13 @@ export class PhoneCheckController {
       console.log('전화번호 검증 완료');
       console.log(createPhoneCheckDto.phoneNum); // phoneNum이 제대로 들어오는지 확인
     }
-    return this.phoneCheckService.create(createPhoneCheckDto);
+    const code = await this.phoneCheckService.create(createPhoneCheckDto);
+    return `code : ${code}`;
   }
 
-  @Get()
-  update(@Body() updatePhoneCheckDto: UpdatePhoneCheckDto) {
-    return this.phoneCheckService.get(updatePhoneCheckDto);
+  @Patch()
+  async update(@Body() updatePhoneCheckDto: UpdatePhoneCheckDto) {
+    const result = await this.phoneCheckService.check(updatePhoneCheckDto);
+    return `result : ${result}`;
   }
 }
