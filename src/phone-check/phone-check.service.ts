@@ -38,8 +38,42 @@ export class PhoneCheckService {
 
     return randomCode;
   }
-}
 
-// update(id: number, updatePhoneCheckDto: UpdatePhoneCheckDto) {
-//   return `This action updates a #${id} phoneCheck`;
-// }
+  async get(updatePhoneCheckDto: UpdatePhoneCheckDto): Promise<boolean> {
+    const { phoneNum, codeNum } = updatePhoneCheckDto;
+
+    // 데이터베이스에서 phoneNumber가 일치하는 레코드 검색
+    const info = await this.prisma.user.findUnique({
+      where: {
+        phoneNumber: phoneNum,
+      },
+    });
+
+    // 레코드가 없는 경우
+    if (!info) {
+      return false; //인증 실패
+    }
+
+    // 만료 시간 검사
+    const currentTime = new Date();
+    if (info.expiresAt < currentTime) {
+      // 만료됬으면 isDeleted를 1로 업데이트
+      await this.prisma.user.update({
+        where: {
+          phoneNumber: phoneNum,
+        },
+        data: {
+          isDeleted: true, // isDeleted 값을 1로 설정
+        },
+      });
+      return false; // 만료된 경우 인증 실패
+    }
+
+    // 코드가 일치하는지 확인
+    if (info.code === codeNum) {
+      return true; // 인증 성공
+    } else {
+      return false; // 인증 실패
+    }
+  }
+}

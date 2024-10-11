@@ -1,8 +1,9 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get } from '@nestjs/common';
 import { PhoneCheckService } from './phone-check.service';
 import { CreatePhoneCheckDto } from './dto/create-phone-check.dto';
 import { UpdatePhoneCheckDto } from './dto/update-phone-check.dto';
 import { validate } from 'class-validator';
+import { get } from 'http';
 
 @Controller('phone-check')
 export class PhoneCheckController {
@@ -21,8 +22,8 @@ export class PhoneCheckController {
     return this.phoneCheckService.create(createPhoneCheckDto);
   }
 
-  // @Patch()
-  // update(@Body() updatePhoneCheckDto: UpdatePhoneCheckDto) {
-  //   return this.phoneCheckService.update(updatePhoneCheckDto);
-  // }
+  @Get()
+  update(@Body() updatePhoneCheckDto: UpdatePhoneCheckDto) {
+    return this.phoneCheckService.get(updatePhoneCheckDto);
+  }
 }
