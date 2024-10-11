@@ -8,23 +8,29 @@ export class PhoneCheckService {
   constructor(private readonly prisma: PrismaService) {}
 
   private generateRandomCode(): string {
-    const randomNumber = Math.floor(Math.random() * 100000);
+    const randomNumber = Math.floor(Math.random() * 1000000); // 6자리 랜덤 숫자 생성
     return randomNumber.toString().padStart(6, '0');
   }
 
   async create(createPhoneCheckDto: CreatePhoneCheckDto): Promise<string> {
-    console.log('Received phoneNum:', createPhoneCheckDto.phoneNum); // phoneNum이 제대로 들어오는지 확인
     const phoneNum = createPhoneCheckDto.phoneNum; // 받아온 전화번호
-    const randomCode = this.generateRandomCode(); // 생성된 6자리 랜던코드
+    const randomCode = this.generateRandomCode(); // 생성된 6자리 랜덤 코드
 
     // 만료 시간 설정 (예: 5분 후)
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + 5);
 
-    // 데이터베이스에 전화번호와 인증 코드 저장
-    await this.prisma.user.create({
-      data: {
-        phoneNumber: phoneNum,
+    // Prisma의 upsert를 사용하여 기존 전화번호가 있으면 업데이트, 없으면 생성
+    await this.prisma.user.upsert({
+      where: {
+        phoneNumber: phoneNum, // 이 필드를 기준으로 고유 여부 확인
+      },
+      update: {
+        code: randomCode, // 기존 데이터가 있으면 코드와 만료 시간 업데이트
+        expiresAt: expiresAt,
+      },
+      create: {
+        phoneNumber: phoneNum, // 없으면 새로 생성
         code: randomCode,
         expiresAt: expiresAt,
       },
@@ -32,8 +38,8 @@ export class PhoneCheckService {
 
     return randomCode;
   }
-
-  // update(id: number, updatePhoneCheckDto: UpdatePhoneCheckDto) {
-  //   return `This action updates a #${id} phoneCheck`;
-  // }
 }
+
+// update(id: number, updatePhoneCheckDto: UpdatePhoneCheckDto) {
+//   return `This action updates a #${id} phoneCheck`;
+// }
